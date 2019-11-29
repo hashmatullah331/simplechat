@@ -4,9 +4,11 @@ kivy.require('1.10.1')
 
 
 from kivy.app import App
+from kivy.graphics import Color, Rectangle
 from kivy.uix.boxlayout import BoxLayout 
 from kivy.uix.label import Label
 from kivy.uix.button import Button
+
 
 
 class Toolbar(BoxLayout):
@@ -15,9 +17,19 @@ class Toolbar(BoxLayout):
         super().__init__(**kwargs)
 
         self.label = Label(text='Toolbar')
-        self.label.color = [0.58, 1, 0.97, 1]
+        self.label.color = [0,0,0,1]
 
         self.add_widget(self.label)
+
+        # self.canvas.add(Color(0.58, 1, 0.97))
+        # self.canvas.add(Rectangle(pos=self.pos, size=self.size))
+
+        self.bind(pos=self.update_pos_size, size=self.update_pos_size)
+
+    def update_pos_size(self, event, widget):
+        self.canvas.before.add(Color(0.30,1,0.88))
+        self.canvas.before.add(Rectangle(pos=self.pos, size=self.size))
+        
 
 
 class ChatContainer(BoxLayout):
@@ -26,8 +38,14 @@ class ChatContainer(BoxLayout):
         super().__init__(**kwargs)
 
         self.label = Label(text='Chat Container')
-        self.label.background_color = [0.58, 1, 0.97, 1]
+        self.label.color = [0,0,0, 1]
         self.add_widget(self.label)
+
+        self.bind(pos=self.update_pos_size, size=self.update_pos_size)
+
+    def update_pos_size(self, event, widget):
+        self.canvas.before.add(Color(0.30,1,0.88))
+        self.canvas.before.add(Rectangle(pos=self.pos, size=self.size))
 
 
 class Chat(BoxLayout):
@@ -42,9 +60,15 @@ class MessageContainer(BoxLayout):
         super().__init__(**kwargs)
 
         self.label = Label(text='Message Container')
-        self.label.background_color = [0.58, 1, 0.97, 1]
+        self.label.color = [0,0,0, 1]
 
         self.add_widget(self.label)
+
+        self.bind(pos=self.update_pos_size, size=self.update_pos_size)
+
+    def update_pos_size(self, event, widget):
+        self.canvas.before.add(Color(0.30,1,0.88))
+        self.canvas.before.add(Rectangle(pos=self.pos, size=self.size))
 
 
 class Message(BoxLayout):
@@ -57,6 +81,8 @@ class MainArea(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        self.spacing = 10
 
         self.chat_container = ChatContainer()
         self.chat_container.size_hint = (.3, 1)
@@ -73,6 +99,7 @@ class Root(BoxLayout):
         super().__init__(**kwargs)
         
         self.orientation = 'vertical'
+        self.spacing = 10
 
         self.toolbar = Toolbar()
         self.toolbar.size_hint = (1, .1)
@@ -81,6 +108,13 @@ class Root(BoxLayout):
 
         self.add_widget(self.toolbar)
         self.add_widget(self.main_area)
+
+
+        self.bind(pos=self.update_pos_size, size=self.update_pos_size)
+
+    def update_pos_size(self, event, widget):
+        self.canvas.before.add(Color(0.34,0.03,1,1))
+        self.canvas.before.add(Rectangle(pos=self.pos, size=self.size))
 
 
 
