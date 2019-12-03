@@ -11,6 +11,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.splitter import Splitter
 from kivy.uix.label import Label
 from kivy.uix.button import Button
+from kivy.uix.textinput import TextInput
 
 
 
@@ -72,6 +73,8 @@ class ChatSplitter(Splitter):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.sizable_from = 'right'
+        self.min_size = 150
+        self.max_size = 400
         self.add_widget(ChatScrollView())
 
 
@@ -90,23 +93,41 @@ class MessageContainer(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.orientation = 'vertical'
+        self.messages = Messages()
+        self.messages.size_hint=(1,0.8)
+        self.add_widget(self.messages)
 
-        self.label = Label(text='Message Container')
-        self.label.color = [0,0,0, 1]
-
-        self.add_widget(self.label)
+        self.typing_area = TypingArea()
+        self.typing_area.size_hint = (1, 0.2)
+        self.add_widget(self.typing_area)
 
         self.bind(pos=self.update_pos_size, size=self.update_pos_size)
 
     def update_pos_size(self, event, widget):
+        self.canvas.before.clear()
         self.canvas.before.add(Color(0.2313,0.349,0.596))
         self.canvas.before.add(Rectangle(pos=self.pos, size=self.size))
 
 
-class Message(BoxLayout):
+class TypingArea(BoxLayout):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.text_box = TextInput(padding=[15,15,15,15], font_size=20)
+        self.add_widget(self.text_box)
+        self.text_box.size_hint=(0.7, 1)
+
+        self.send_button = Button(text='Send')
+        self.add_widget(self.send_button)
+        self.send_button.size_hint=(0.3, 1)
+
+class Messages(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        self.add_widget(Label(text='Messages'))
 
 
 class MainArea(BoxLayout):
