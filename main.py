@@ -8,6 +8,7 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.boxlayout import BoxLayout 
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
+from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.splitter import Splitter
 from kivy.uix.label import Label
 from kivy.uix.button import Button
@@ -93,12 +94,14 @@ class MessageContainer(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.count = 0
+
         self.orientation = 'vertical'
         self.messages = Messages()
         self.messages.size_hint=(1,0.8)
         self.add_widget(self.messages)
 
-        self.typing_area = TypingArea()
+        self.typing_area = TypingArea(send_message=self.send_message)
         self.typing_area.size_hint = (1, 0.2)
         self.add_widget(self.typing_area)
 
@@ -110,24 +113,95 @@ class MessageContainer(BoxLayout):
         self.canvas.before.add(Rectangle(pos=self.pos, size=self.size))
 
 
+    def send_message(self, event):
+        
+        if self.count % 2 == 0:
+            self.messages.add_widget(MessageSent(message=self.typing_area.text_box.text))
+        else:
+            self.messages.add_widget(MessageReceived(message=self.typing_area.text_box.text))
+
+        self.typing_area.text_box.text = ''        
+        self.count += 1
+
+
 class TypingArea(BoxLayout):
-    def __init__(self, **kwargs):
+    def __init__(self, send_message, **kwargs):
         super().__init__(**kwargs)
 
         self.text_box = TextInput(padding=[15,15,15,15], font_size=20)
         self.add_widget(self.text_box)
         self.text_box.size_hint=(0.7, 1)
 
-        self.send_button = Button(text='Send')
+        self.send_button = Button(text='Send', on_press=send_message)
         self.add_widget(self.send_button)
         self.send_button.size_hint=(0.3, 1)
 
-class Messages(BoxLayout):
+class Messages(GridLayout):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.cols = 1
+        self.size_hint = (1, None)
+        self.height = 150
+        # self.add_widget(MessageReceived())
+        # self.add_widget(MessageSent())
+
+
+class Message(AnchorLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.add_widget(Label(text='Messages'))
+        
+        self.size_hint = (1, None)
+        self.height = 150
+        
+        # self.add_widget(self.text)
+
+
+class Text(Label):
+
+    def __init__(self, background, **kwargs):
+        super().__init__(**kwargs)
+
+        self.background = background
+
+        self.bind(pos=self.update_pos_size, size=self.update_pos_size)
+
+    def update_pos_size(self, event, widget):
+        self.canvas.before.clear()
+        self.canvas.before.add(Color(*self.background))
+        self.canvas.before.add(Rectangle(pos=self.pos, size=self.size))
+
+
+class MessageReceived(Message):
+
+    def __init__(self, message, **kwargs):
+        super().__init__(**kwargs)
+
+        self.anchor_x = 'left'
+
+        self.text = Text(background=[0.96,0.96,0.96],text=message)
+        self.text.color = [0,0,0, 1]
+        self.text.size_hint = (None, 1)
+        self.text.width = 250
+
+        self.add_widget(self.text)
+
+
+class MessageSent(Message):
+
+    def __init__(self,message, **kwargs):
+        super().__init__(**kwargs)
+
+        self.anchor_x = 'right'
+
+        self.text = Text(background=[0.5215,0.7764,0.8312], text=message)
+        self.text.color = [0,0,0, 1]
+        self.text.size_hint = (None, 1)
+        self.text.width = 250
+
+        self.add_widget(self.text)
 
 
 class MainArea(BoxLayout):
